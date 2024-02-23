@@ -31,12 +31,16 @@ fetch = st.button('Fetch Current Stock Price')
 if fetch:
     try:
         current_price = fetch_data(ticker)
+        st.session_state['current_price'] = current_price # Update session state
         st.success(f"Current Price for {ticker}: {current_price}")
     except Exception as e:
         st.error(f"Failed to fetch data for {ticker}: {str(e)}")
-        current_price = 0
+        st.session_state['current_price'] = 0
 else:
-    current_price = 0
+    st.session_state['current_price'] = 0
+
+# Then, use `st.session_state['current_price']` instead of `current_price` for further logic.
+
 
 X = st.number_input('Strike Price (X)', value=100.0)
 T = st.slider('Time to Maturity (T) in years', 0.01, 2.0, 1.0)
@@ -44,8 +48,8 @@ r = st.slider('Risk-Free Interest Rate (r)', 0.01, 0.1, 0.05)
 sigma = st.slider('Volatility of the Stock Returns (σ)', 0.1, 1.0, 0.2)
 option_type = st.selectbox('Option Type', ['call', 'put'])
 
-if st.button('Calculate Option Price') and current_price > 0:
-    option_price = black_scholes(current_price, X, T, r, sigma, option_type)
+if st.button('Calculate Option Price') and st.session_state['current_price'] > 0:
+    option_price = black_scholes(st.session_state['current_price'], X, T, r, sigma, option_type)
     st.write(f"The {option_type} option price for {ticker} is: {option_price:.2f}")
 else:
     st.write("Enter all parameters to calculate the option price.")
